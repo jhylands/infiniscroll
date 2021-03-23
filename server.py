@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, make_response
 import random
 import time
+# Source https://pythonise.com/categories/javascript/infinite-lazy-loading
 
 app = Flask(__name__)
 
