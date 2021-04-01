@@ -1,6 +1,5 @@
-from flask import Flask, render_template, request, jsonify, make_response
+from flask import Flask, render_template, request, jsonify, make_response, send_from_directory
 import random
-import time
 # Source https://pythonise.com/categories/javascript/infinite-lazy-loading
 
 app = Flask(__name__)
@@ -41,11 +40,16 @@ def index():
     return render_template("index.html")
 
 
+@app.route('/js/<path:path>')
+def send_js(path):
+    return send_from_directory('templates/js', path)
+
+
+
 @app.route("/load")
 def load():
     """ Route to return the posts """
 
-    time.sleep(0.2)  # Used to simulate delay
 
     if request.args:
         counter = int(request.args.get("c"))  # The 'counter' value sent in the QS
