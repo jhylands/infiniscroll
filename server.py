@@ -2,6 +2,11 @@ from flask import Flask, render_template, request, jsonify, make_response, send_
 import random
 # Source https://pythonise.com/categories/javascript/infinite-lazy-loading
 
+import datetime
+import os
+import pymysql.cursors
+import pymysql
+
 app = Flask(__name__)
 
 heading = "Lorem ipsum dolor sit amet."
@@ -49,8 +54,6 @@ def send_js(path):
 @app.route("/load")
 def load():
     """ Route to return the posts """
-
-
     if request.args:
         counter = int(request.args.get("c"))  # The 'counter' value sent in the QS
 
@@ -67,8 +70,59 @@ def load():
             print("Returning posts {} to {}".format(counter, counter + quantity))
             # Slice counter -> quantity from the db
             res = make_response(jsonify(db[counter: counter + quantity]), 200)
-
     return res
+
+@app.route('/last/<int:k>', methods=['GET'])
+def last_k_entries(k):
+    try:
+        # https://stackoverflow.com/a/34503728/1320619
+        # Connect to the database
+        connection = pymysql.connect(host="141.136.33.223",
+                                     user='timepcou_site',
+                                     password=os.environ["code"],
+                                     db='timepcou_devopchallenge',
+                                     charset='utf8mb4',
+                                     cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            # Create a new record
+            sql = "select * from store order by id desc limit %s"
+            acc = []
+            cursor.execute(sql, (k,))
+            for result in cursor.fetchall():
+                acc.append(result)
+
+        # connection is not autocommit by default. So you must commit to save
+        # your changes.
+        connection.commit()
+    finally:
+        connection.close()
+    return jsonify(acc)
+
+
+@app.route('/store', methods=['POST'])
+def store_message():
+    message = request.json.get("message")
+    now = datetime.datetime.now()
+    try:
+        # https://stackoverflow.com/a/34503728/1320619
+        # Connect to the database
+        connection = pymysql.connect(host="141.136.33.223",
+                                     user='timepcou_site',
+                                     password=os.environ["code"],
+                                     db='timepcou_devopchallenge',
+                                     charset='utf8mb4',
+                                     cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            # Create a new record
+            sql = "INSERT INTO `store` (`message`, `timestamp`) VALUES (%s, %s)"
+            cursor.execute(sql, (message, now))
+
+        # connection is not autocommit by default. So you must commit to save
+        # your changes.
+        connection.commit()
+    finally:
+        connection.close()
+    return jsonify({})
 
 if __name__ == "__main__":
     app.run(port=8008, host="0.0.0.0")
