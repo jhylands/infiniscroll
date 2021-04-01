@@ -1,5 +1,10 @@
 $(document).ready(function(){
     // Get references to the dom elements
+    function omnibarFocus(){
+      window.scroll(0, $("#iload").position().top - window.innerHeight+130);
+    }
+    $("#omnibar").focus(omnibarFocus).click(omnibarFocus);
+      
     var scrollers = [
       document.querySelector("#scroller_upper"),
       document.querySelector("#scroller_lower")];
@@ -74,7 +79,7 @@ $(document).ready(function(){
 document.addEventListener('scroll', function(e) {
   var inputbox = $(".inputbox");
   var middle_box = $(".display-4").position().top;
-  var input_top = window.scrollY - middle_box;//inputbox.position().top;
+  var input_top = window.scrollY - middle_box;
   if(input_top>-20){
     inputbox.addClass("fix-search-top");
   }else if(input_top<-window.innerHeight-30){

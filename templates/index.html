@@ -14,10 +14,12 @@
 .fix-search-top{
     position:fixed;
     top:0px;
+    left:0px;
 }
 .fix-search-bottom{
     position:fixed;
     bottom:0px;
+    left:0px;
 }
 input{
     width:100%;
@@ -48,7 +50,7 @@ input{
 
           </div>
 
-          <h1 class="display-4 mb-3">Infinite load</h1>
+          <h1 id="iload" class="display-4 mb-3">Infinite load</h1>
 
         </div>
       </div>
@@ -60,7 +62,7 @@ input{
     <a class="navbar-brand" id="loaded" href="#">0 items loaded</a>
   </div>
 <div class="inputbox">
-    <input type="text" />
+    <input id="omnibar" type="text" />
 </div>
 </nav>
     <div class="container">
