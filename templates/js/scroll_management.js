@@ -2,7 +2,7 @@ var firstOmni = true;
 $(document).ready(function(){
     // Get references to the dom elements
     function omnibarFocus(){
-      window.scroll({top: $("#iload").position().top - window.innerHeight+130, left:0, behavior: "smooth"});
+      window.scroll({top: $("#iload").position().top - window.innerHeight+140, left:0, behavior: "smooth"});
     }
 
     $("#omnibar").focus(omnibarFocus).click(omnibarFocus);

@@ -8,8 +8,14 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="js/scroll_management.js"></script>
 <style>
-.inputbox{
+#inputbox{
     width:100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-image: radial-gradient(black, white);
+}
+#omnibar{
+    font-size:18px;
 }
 .fix-search-top{
     position:fixed;
@@ -61,7 +67,7 @@ input{
   <div class="container">
     <a class="navbar-brand" id="loaded" href="#">0 items loaded</a>
   </div>
-<div class="inputbox">
+<div id="inputbox" class="inputbox">
     <input id="omnibar" type="text" />
 </div>
 </nav>
