@@ -70,3 +70,17 @@ $(document).ready(function(){
     intersectionObserver1.observe(sentinels[0]);
     intersectionObserver2.observe(sentinels[1]);
 });
+
+document.addEventListener('scroll', function(e) {
+  var inputbox = $(".inputbox");
+  var middle_box = $(".display-4").position().top;
+  var input_top = window.scrollY - middle_box;//inputbox.position().top;
+  if(input_top>-20){
+    inputbox.addClass("fix-search-top");
+  }else if(input_top<-window.innerHeight-30){
+    inputbox.addClass("fix-search-bottom");
+  }else{
+    inputbox.removeClass("fix-search-top");
+    inputbox.removeClass("fix-search-bottom");
+  }
+ });
