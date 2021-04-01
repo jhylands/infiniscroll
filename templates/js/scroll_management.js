@@ -1,8 +1,10 @@
+var firstOmni = true;
 $(document).ready(function(){
     // Get references to the dom elements
     function omnibarFocus(){
-      window.scroll(0, $("#iload").position().top - window.innerHeight+130);
+      window.scroll({top: $("#iload").position().top - window.innerHeight+130, left:0, behavior: "smooth"});
     }
+
     $("#omnibar").focus(omnibarFocus).click(omnibarFocus);
       
     var scrollers = [
@@ -24,6 +26,7 @@ $(document).ready(function(){
       fetch(`/load?c=${counter}`).then((response) => {
         // Convert the response data to JSON
         response.json().then((data) => {
+
           // If empty JSON, exit the function
           if (!data.length) {
             // Replace the spinner with "No more posts"
@@ -50,6 +53,10 @@ $(document).ready(function(){
             counter += 1;
             // Update the counter in the navbar
             loaded.innerText = `${counter} items loaded`;
+          }
+          if(firstOmni){
+            omnibarFocus();
+            firstOmni = false;
           }
         })
       })
@@ -80,9 +87,9 @@ document.addEventListener('scroll', function(e) {
   var inputbox = $(".inputbox");
   var middle_box = $(".display-4").position().top;
   var input_top = window.scrollY - middle_box;
-  if(input_top>-20){
+  if(input_top>100){
     inputbox.addClass("fix-search-top");
-  }else if(input_top<-window.innerHeight-30){
+  }else if(input_top<-window.innerHeight+100){
     inputbox.addClass("fix-search-bottom");
   }else{
     inputbox.removeClass("fix-search-top");
