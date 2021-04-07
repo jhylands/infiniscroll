@@ -32,7 +32,7 @@ def load():
     return jsonify([{"title": "This is a title", "content": "This is some content."} for i in range(20)])
 
 
-@app.route('/previous_messages/<int:last_id> ', methods=['POST'])
+@app.route('/previous_messages/<int:last_id>', methods=['POST'])
 def get_previous_messages(last_id):
     number_to_load = 20
     try:
@@ -46,7 +46,7 @@ def get_previous_messages(last_id):
                                      cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
             # Create a new record
-            sql = "select * from store where id<%s order by id desc limit %s"
+            sql = "select * from store where id>%s order by id desc limit %s"
             acc = []
             cursor.execute(sql, (last_id, number_to_load))
             for result in cursor.fetchall():

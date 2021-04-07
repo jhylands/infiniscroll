@@ -60,7 +60,26 @@ class MessageHandler{
   }
   add_new_message(message){
   }
-  add_older_messages(messages){
+  add_older_messages(items){
+    // Iterate over the items in the response
+    for (var i = 0; i < items.length; i++) {
+      this.get_scroller()
+        .appendChild(
+          this.message_to_dom(items[i]));
+    }
+  }
+  message_to_dom(message){
+    let template_clone = this.get_template().content.cloneNode(true);
+    // Query & update the template content
+    template_clone.querySelector("#user").innerHTML = message.id;
+    template_clone.querySelector("#content").innerHTML = message.message;
+    return template_clone;
+  }
+  get_scroller(){
+    return $("#scroller_upper")[FIRST];
+  }
+  get_template(){
+    return $("#message_template")[FIRST];
   }
 
   handleSuccessComandSent(response, textStatus, jqXHR) {
