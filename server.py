@@ -6,6 +6,8 @@ import os
 import pymysql.cursors
 import pymysql
 
+from item_manager import ItemManager
+
 app = Flask(__name__)
 
 
@@ -29,7 +31,9 @@ def send_js(path):
 @app.route("/load", methods=['POST'])
 def load():
     """ Route to return the posts """
-    return jsonify([{"title": "This is a title", "content": "This is some content."} for i in range(20)])
+    item_manager = ItemManager()
+    items = [item.to_jsonable() for item in item_manager.get_items(20)]
+    return jsonify(items)
 
 
 @app.route('/previous_messages/', methods=['POST'])
