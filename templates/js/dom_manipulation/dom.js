@@ -68,7 +68,7 @@ class MessageHandler{
     for (var i = 0; i < items.length; i++) {
       //Not sure this is the right direction
       this.get_scroller()
-        .appendChild(
+        .prepend(
           this.message_to_dom(items[i]));
     }
   }
@@ -112,12 +112,17 @@ class CommandHandler{
   make_handle(){
     var self = this;
     return function handleOmniboxTyping(event){
-      var omnibarValue = $("#omnibar")[FIRST].value;
+      var omnibarValue = self.get_box().value;
       if(self.eventIsReturnCarridge(event) && omnibarValue !== ""){
+        self.get_box().value = "";
         self.sendCommand(omnibarValue);
       } 
     };
   }
+  get_box(){
+    return $("#omnibar")[FIRST];
+  }
+  
   scrollToTypePosition(){
     /* This function induces the page to scroll so that the
        omnibox is at the bottom of the page.

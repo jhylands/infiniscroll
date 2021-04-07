@@ -57,7 +57,12 @@ class MessageComs extends Server{
     var self = this;
     return new Promise(function(resolve, reject){
       var data = {};
-      var url = "/previous_messages/" + current_message_id;
+      var url;
+      if(current_message_id!==0){
+        url = "/previous_messages/" + current_message_id;
+      }else{
+        url = "/previous_messages/";
+      }
       self.postJSON(url, data, resolve);
     });
   }

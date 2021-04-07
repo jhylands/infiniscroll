@@ -8,7 +8,7 @@ class Messenger extends ScrollModel{
   update_message_id(messages){
     var id_list = messages.map(message=>message.id);
     if (id_list.length!==0){
-      this.current_message_id = Math.max(...id_list);
+      this.current_message_id = Math.min(...id_list);
     }
   }
   more(){

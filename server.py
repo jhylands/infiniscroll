@@ -34,7 +34,7 @@ def load():
 
 @app.route('/previous_messages/', methods=['POST'])
 def get_previous_messages_unknown_number():
-    number_to_load = 20
+    number_to_load = 5
     try:
         # https://stackoverflow.com/a/34503728/1320619
         # Connect to the database
@@ -51,7 +51,6 @@ def get_previous_messages_unknown_number():
             cursor.execute(sql, (number_to_load))
             for result in cursor.fetchall():
                 acc.append(result)
-                acc.reverse()
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.
@@ -63,7 +62,7 @@ def get_previous_messages_unknown_number():
 
 @app.route('/previous_messages/<int:last_id>', methods=['POST'])
 def get_previous_messages(last_id):
-    number_to_load = 20
+    number_to_load = 10
     try:
         # https://stackoverflow.com/a/34503728/1320619
         # Connect to the database
@@ -75,12 +74,11 @@ def get_previous_messages(last_id):
                                      cursorclass=pymysql.cursors.DictCursor)
         with connection.cursor() as cursor:
             # Create a new record
-            sql = "select * from store where id>%s order by id desc limit %s"
+            sql = "select * from store where id<%s order by id desc limit %s"
             acc = []
             cursor.execute(sql, (last_id, number_to_load))
             for result in cursor.fetchall():
                 acc.append(result)
-            acc.reverse()
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.
@@ -107,13 +105,17 @@ def store_message():
             # Create a new record
             sql = "INSERT INTO `store` (`message`, `timestamp`) VALUES (%s, %s)"
             cursor.execute(sql, (message, now))
+            sql = "select * from store order by id desc limit 1"
+            cursor.execute(sql, ())
+            for result in cursor.fetchall():
+                a = jsonify(result)
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.
         connection.commit()
     finally:
         connection.close()
-    return jsonify({})
+    return a
 
 
 if __name__ == "__main__":
