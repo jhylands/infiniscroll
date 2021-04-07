@@ -12,12 +12,18 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     """ Route to render the HTML """
-    return render_template("index.html")
+    return send_from_directory('dist', "index.html")
+
+
+@app.route("/main.js")
+def js():
+    """ Route to render the HTML """
+    return send_from_directory('dist', "main.js")
 
 
 @app.route('/js/<path:path>')
 def send_js(path):
-    return send_from_directory('templates/js', path)
+    return send_from_directory('dist', path)
 
 
 @app.route("/load")

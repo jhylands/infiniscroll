@@ -66,43 +66,25 @@ class MessageHandler{
   handleSuccessComandSent(response, textStatus, jqXHR) {
     console.log(response);
     $("#omnibar")[FIRST].value = "";
-    load_messages(document.querySelector("#sentinel_upper"));
   }
 }
 
 class CommandHandler{
   constructor(){
     $("#omnibar")
-      .focus(scrollToTypePosition)
-      .click(scrollToTypePosition)
-      .keypress(handleOmniboxTyping);
-    document.addEventListener("scroll", scrollHandler);
+      .focus(this.scrollToTypePosition)
+      .click(this.scrollToTypePosition)
+      .keypress(this.handleOmniboxTyping);
   }
   eventIsReturnCarridge(event){
     var keycode = (event.keyCode ? event.keyCode : event.which);
     return keycode == "13";
   }
   handleOmniboxTyping(event){
-    var omnibarValue = $("#omnibar")[0].value;
+    var omnibarValue = $("#omnibar")[FIRST].value;
     if(this.eventIsReturnCarridge(event) && omnibarValue !== ""){
-      sendCommand(omnibarValue);
+      this.sendCommand(omnibarValue);
     } 
-  }
-}
-
-class ScrollHandler{
-  scrollHandler(e){
-    var inputbox = $(".inputbox");
-    var middle_box = $(".display-4").position().top;
-    var input_top = window.scrollY - middle_box;
-    if(input_top>100){
-      inputbox.addClass("fix-search-top");
-    }else if(input_top<-window.innerHeight+100){
-      inputbox.addClass("fix-search-bottom");
-    }else{
-      inputbox.removeClass("fix-search-top");
-      inputbox.removeClass("fix-search-bottom");
-    }
   }
   scrollToTypePosition(){
     /* This function induces the page to scroll so that the
@@ -113,35 +95,72 @@ class ScrollHandler{
       left: 0,
       behavior: "smooth"});
   }
+}
+
+class ScrollHandler{
+  constructor(){
+    document.addEventListener("scroll", this.scrollHandler);
+    // Provide some default top and bottom functions
+    this.top_handler = function(){};
+    this.bottom_handler = function(){};
+  }
+  attach_top_handler(top_handler){
+    this.top_handler = top_handler;
+  }
+  attach_bottom_handler(bottom_handler){
+    this.bottom_handler = bottom_handler;
+  }
+  scrollHandler(e){
+    const THRESHOLD = 100;
+    var inputbox = $(".inputbox");
+    var middle_box = $(".display-4").position().top;
+    var input_top = window.scrollY - middle_box;
+    if(input_top>THRESHOLD){
+      inputbox.addClass("fix-search-top");
+    }else if(input_top<-window.innerHeight+THRESHOLD){
+      inputbox.addClass("fix-search-bottom");
+    }else{
+      inputbox.removeClass("fix-search-top");
+      inputbox.removeClass("fix-search-bottom");
+    }
+    if(window.scrollY<THRESHOLD){
+      //more messages
+      this.top_handler();
+    }else if(window.scrollY+THRESHOLD>document.body.scrollHeight){
+      //more feed
+      this.bottom_handler();
+    }
+  }
 
 }
 
+
 //Functions to export from module (Used by main)
-function get_scroll_handler(){
+function get_scroll_handler(server){
   return new Promise(function(resolve, reject){
     $(document).ready(function(){
       resolve(new ScrollHandler());
     });
   });
 }
-function get_feed_handler(){
+function get_feed_handler(server){
   return new Promise(function(resolve, reject){
     $(document).ready(function(){
       resolve(new FeedHandler());
     });
   });
 }
-function get_message_handler(){
+function get_message_handler(server){
   return new Promise(function(resolve, reject){
     $(document).ready(function(){
-      resolve(new MessageHandler());
+      resolve(new MessageHandler(server));
     });
   });
 }
-function get_command_handler(){
+function get_command_handler(server){
   return new Promise(function(resolve, reject){
     $(document).ready(function(){
-      resolve(new CommandHandler());
+      resolve(new CommandHandler(server));
     });
   });
 }
