@@ -62,11 +62,12 @@ class MessageComs extends Server{
     });
   }
   submit_new_message(message){
+    var self = this;
     //should return a promise of more messages
     return new Promise(function(resolve, reject){
-      var data = {message:message};
+      var data = {message:message.message};
       var url = "/store_message";
-      this.postJSON(url, data, resolve);
+      self.postJSON(url, data, resolve);
     });
   }
   // Function to request new items and render to the dom

@@ -32,6 +32,35 @@ def load():
     return jsonify([{"title": "This is a title", "content": "This is some content."} for i in range(20)])
 
 
+@app.route('/previous_messages/', methods=['POST'])
+def get_previous_messages_unknown_number():
+    number_to_load = 20
+    try:
+        # https://stackoverflow.com/a/34503728/1320619
+        # Connect to the database
+        connection = pymysql.connect(host="141.136.33.223",
+                                     user='timepcou_site',
+                                     password=os.environ["code"],
+                                     db='timepcou_devopchallenge',
+                                     charset='utf8mb4',
+                                     cursorclass=pymysql.cursors.DictCursor)
+        with connection.cursor() as cursor:
+            # Create a new record
+            sql = "select * from store order by id desc limit %s"
+            acc = []
+            cursor.execute(sql, (number_to_load))
+            for result in cursor.fetchall():
+                acc.append(result)
+                acc.reverse()
+
+        # connection is not autocommit by default. So you must commit to save
+        # your changes.
+        connection.commit()
+    finally:
+        connection.close()
+    return jsonify(acc)
+
+
 @app.route('/previous_messages/<int:last_id>', methods=['POST'])
 def get_previous_messages(last_id):
     number_to_load = 20
@@ -51,6 +80,7 @@ def get_previous_messages(last_id):
             cursor.execute(sql, (last_id, number_to_load))
             for result in cursor.fetchall():
                 acc.append(result)
+            acc.reverse()
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.

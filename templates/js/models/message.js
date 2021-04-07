@@ -3,8 +3,10 @@ class Message{
     
   }
   static fromJSON(json_string){
-    var a = JSON.parse(json_string);
-    return new Message();
+    var message_info = JSON.parse(json_string);
+    var message = new Message();
+    message.message = message_info.message;
+    return message;
   }
 }
 

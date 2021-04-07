@@ -59,10 +59,14 @@ class MessageHandler{
     this.message_sender = message_sender;
   }
   add_new_message(message){
+    this.get_scroller()
+      .appendChild(
+        this.message_to_dom(message));
   }
   add_older_messages(items){
     // Iterate over the items in the response
     for (var i = 0; i < items.length; i++) {
+      //Not sure this is the right direction
       this.get_scroller()
         .appendChild(
           this.message_to_dom(items[i]));
@@ -90,20 +94,29 @@ class MessageHandler{
 
 class CommandHandler{
   constructor(){
+    this.sendCommand = function(){console.log("sendCommand needs setting");};
     $("#omnibar")
       .focus(this.scrollToTypePosition)
       .click(this.scrollToTypePosition)
-      .keypress(this.handleOmniboxTyping);
+      .keypress(this.make_handle());
+
   }
   eventIsReturnCarridge(event){
     var keycode = (event.keyCode ? event.keyCode : event.which);
     return keycode == "13";
   }
-  handleOmniboxTyping(event){
-    var omnibarValue = $("#omnibar")[FIRST].value;
-    if(this.eventIsReturnCarridge(event) && omnibarValue !== ""){
-      this.sendCommand(omnibarValue);
-    } 
+  attach_message_sender(sendCommand){
+    this.sendCommand = sendCommand;
+  }
+
+  make_handle(){
+    var self = this;
+    return function handleOmniboxTyping(event){
+      var omnibarValue = $("#omnibar")[FIRST].value;
+      if(self.eventIsReturnCarridge(event) && omnibarValue !== ""){
+        self.sendCommand(omnibarValue);
+      } 
+    };
   }
   scrollToTypePosition(){
     /* This function induces the page to scroll so that the

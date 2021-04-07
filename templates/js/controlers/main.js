@@ -12,6 +12,7 @@ var FeedComs = Server.FeedComs;
 
 var Feed = require("../models/feed").Feed;
 var Messenger = require("../models/messenger").Messenger;
+var Command = require("../models/command").Command;
 
 // I don't really want these to be global but they need to be defined after the promises have come back...
 // Not that those two things are conflicting but
@@ -35,13 +36,22 @@ function main(){
       feed.attach_communication_handler(new FeedComs());
       messenger = new Messenger();
       messenger.attach_dom_handler(message_handler);
-      messenger.attach_communication_handler(new MessageComs());
+      var message_coms = new MessageComs();
+      messenger.attach_communication_handler(message_coms);
 
       //perhaps it should be here that we setup the requests
-      scroll_handler.attach_top_handler(function(){messenger.more();});
-      scroll_handler.attach_bottom_handler(function(){feed.more();});
+      scroll_handler.attach_top_handler(
+        function(){messenger.more();});
+      scroll_handler.attach_bottom_handler(
+        function(){feed.more();});
       messenger.more();
       feed.more();
+
+      var commander = new Command();
+      commander.attach_communication_handler(message_coms);
+      commander.attach_dom_input_handler(command_handler);
+      commander.attach_dom_output_handler(message_handler);
+      
     });
 }
 
