@@ -29,10 +29,10 @@ class FeedHandler{
     }
   }
   get_scroller(){
-    return $("#scroller_lower");
+    return $("#scroller_lower")[FIRST];
   }
   get_template(){
-    return $("#post_template");
+    return $("#post_template")[FIRST];
   }
   get_lower_sentinel(){
     if(this.lower_sentinel){
@@ -99,7 +99,7 @@ class CommandHandler{
 
 class ScrollHandler{
   constructor(){
-    document.addEventListener("scroll", this.scrollHandler);
+    document.addEventListener("scroll", this.make_scroll_handler());
     // Provide some default top and bottom functions
     this.top_handler = function(){};
     this.bottom_handler = function(){};
@@ -110,26 +110,29 @@ class ScrollHandler{
   attach_bottom_handler(bottom_handler){
     this.bottom_handler = bottom_handler;
   }
-  scrollHandler(e){
-    const THRESHOLD = 100;
-    var inputbox = $(".inputbox");
-    var middle_box = $(".display-4").position().top;
-    var input_top = window.scrollY - middle_box;
-    if(input_top>THRESHOLD){
-      inputbox.addClass("fix-search-top");
-    }else if(input_top<-window.innerHeight+THRESHOLD){
-      inputbox.addClass("fix-search-bottom");
-    }else{
-      inputbox.removeClass("fix-search-top");
-      inputbox.removeClass("fix-search-bottom");
-    }
-    if(window.scrollY<THRESHOLD){
-      //more messages
-      this.top_handler();
-    }else if(window.scrollY+THRESHOLD>document.body.scrollHeight){
-      //more feed
-      this.bottom_handler();
-    }
+  make_scroll_handler(){
+    var self = this;
+    return function scrollHandler(e){
+      const THRESHOLD = 100;
+      var inputbox = $(".inputbox");
+      var middle_box = $(".display-4").position().top;
+      var input_top = window.scrollY - middle_box;
+      if(input_top>THRESHOLD){
+        inputbox.addClass("fix-search-top");
+      }else if(input_top<-window.innerHeight+THRESHOLD){
+        inputbox.addClass("fix-search-bottom");
+      }else{
+        inputbox.removeClass("fix-search-top");
+        inputbox.removeClass("fix-search-bottom");
+      }
+      if(window.scrollY<THRESHOLD){
+        //more messages
+        self.top_handler();
+      }else if(window.scrollY+window.innerHeight>document.body.scrollHeight){
+        //more feed
+        self.bottom_handler();
+      }
+    };
   }
 
 }

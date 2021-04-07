@@ -38,8 +38,8 @@ function main(){
       messenger.attach_communication_handler(new MessageComs());
 
       //perhaps it should be here that we setup the requests
-      scroll_handler.attach_top_handler(messenger.more);
-      scroll_handler.attach_bottom_handler(feed.more);
+      scroll_handler.attach_top_handler(function(){messenger.more();});
+      scroll_handler.attach_bottom_handler(function(){feed.more();});
       messenger.more();
       feed.more();
     });

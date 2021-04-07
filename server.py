@@ -26,13 +26,13 @@ def send_js(path):
     return send_from_directory('dist', path)
 
 
-@app.route("/load")
+@app.route("/load", methods=['POST'])
 def load():
     """ Route to return the posts """
     return jsonify([{"title": "This is a title", "content": "This is some content."} for i in range(20)])
 
 
-@app.route('/previous_messages/<int:last_id> ', methods=['GET'])
+@app.route('/previous_messages/<int:last_id> ', methods=['POST'])
 def get_previous_messages(last_id):
     number_to_load = 20
     try:
