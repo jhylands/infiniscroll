@@ -100,10 +100,12 @@ def attachdb():
 @app.teardown_request
 def teardown_request(exception):
     g.session.close()
+    Session.remove()
 
 @app.after_request
 def closedb(request):
     g.session.close()
+    Session.remove()
     return request
 
 if __name__ == "__main__":
