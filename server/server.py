@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, make_response, send_from_directory
+from flask import Flask, render_template, request, jsonify, make_response, send_from_directory, g
 from flask_login import LoginManager, login_required, current_user
 from sqlalchemy import desc
 from auth import auth as auth_blueprint
@@ -47,52 +47,64 @@ def whoami():
 @app.route('/previous_messages/', methods=['POST'])
 @login_required
 def get_previous_messages_unknown_number():
-    with Session() as session:
-        number_to_load = 5
-        messages = (
-            session
-            .query(Message)
-            .filter(Message.user_id == current_user.id)
-            .order_by(desc(Message.id))
-            .limit(number_to_load)
-            .all())
-        acc = [{"id": message.id, "message": message.message} for message in messages]
-        return jsonify(acc)
+    session = g.session
+    number_to_load = 5
+    messages = (
+        session
+        .query(Message)
+        .filter(Message.user_id == current_user.id)
+        .order_by(desc(Message.id))
+        .limit(number_to_load)
+        .all())
+    acc = [{"id": message.id, "message": message.message} for message in messages]
+    return jsonify(acc)
 
 
 @app.route('/previous_messages/<int:last_id>', methods=['POST'])
 @login_required
 def get_previous_messages(last_id):
     # init SQLAlchemy so we can use it later in our models
-    with Session() as session:
-        number_to_load = 10
-        messages = (
-            session
-            .query(Message)
-            .filter(Message.user_id == current_user.id)
-            .filter(Message.id < last_id)
-            .order_by(desc(Message.id))
-            .limit(number_to_load)
-            .all())
-        acc = [{"id": message.id, "message": message.message} for message in messages]
-        return jsonify(acc)
+    session = g.session
+    number_to_load = 10
+    messages = (
+        session
+        .query(Message)
+        .filter(Message.user_id == current_user.id)
+        .filter(Message.id < last_id)
+        .order_by(desc(Message.id))
+        .limit(number_to_load)
+        .all())
+    acc = [{"id": message.id, "message": message.message} for message in messages]
+    return jsonify(acc)
 
 
 @app.route('/store_message', methods=['POST'])
 @login_required
 def store_message():
     # init SQLAlchemy so we can use it later in our models
-    with Session() as session:
-        message = request.json.get("message")
-        now = datetime.datetime.now()
-        new_message = Message(
-            user_id=current_user.id,
-            message=message,
-            timestamp=now)
-        session.add(new_message)
-        session.commit()
-        return jsonify({"message": message, "id": new_message.id})
+    session = g.session
+    message = request.json.get("message")
+    now = datetime.datetime.now()
+    new_message = Message(
+        user_id=current_user,
+        message=message,
+        timestamp=now)
+    session.add(new_message)
+    session.commit()
+    return jsonify({"message": message, "id": new_message.id})
 
+@app.before_request
+def attachdb():
+    g.session = Session()
+
+@app.teardown_request
+def teardown_request(exception):
+    g.session.close()
+
+@app.after_request
+def closedb(request):
+    g.session.close()
+    return request
 
 if __name__ == "__main__":
     app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
@@ -103,9 +115,11 @@ if __name__ == "__main__":
 
     @login_manager.user_loader
     def load_user(user_id):
-        with Session() as session:
-            # since the user_id is just the primary key of our user table, use it in the query for the user
-            return session.query(User).filter(User.id==int(user_id)).one()
+        session = g.session
+        # since the user_id is just the primary key of our user table, use it in the query for the user
+        user =  session.query(User).filter(User.id==int(user_id)).one()
+        print(user.id)
+        return user
 
     app.register_blueprint(auth_blueprint)
     app.run(port=8008, host="0.0.0.0")
