@@ -6,6 +6,9 @@ class ItemManager:
     def __init__(self):
         pass
 
+    def get_feed_sources(self):
+        pass
+
     def get_items(self, no_items):
         # type: (int)->List[Item]
         return []
