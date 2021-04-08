@@ -48,7 +48,7 @@ def whoami():
 @login_required
 def get_previous_messages_unknown_number():
     session = g.session
-    number_to_load = 5
+    number_to_load = 10
     messages = (
         session
         .query(Message)
@@ -86,7 +86,7 @@ def store_message():
     message = request.json.get("message")
     now = datetime.datetime.now()
     new_message = Message(
-        user_id=current_user,
+        user_id=current_user.id,
         message=message,
         timestamp=now)
     session.add(new_message)
