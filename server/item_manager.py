@@ -3,8 +3,8 @@ from typing import List
 
 
 class ItemManager:
-    def __init__(self):
-        pass
+    def __init__(self, user_id):
+        self.user_id = user_id
 
     def get_feed_sources(self):
         pass

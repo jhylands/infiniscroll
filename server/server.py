@@ -4,15 +4,11 @@ from sqlalchemy import desc
 from auth import auth as auth_blueprint
 from db.user import User
 from db.message import Message
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
+from db.db import Session
 
 import datetime
-import os
 
 from item_manager import ItemManager
-engine = create_engine('mysql://timepcou_site:{}@141.136.33.223/timepcou_devopchallenge?charset=utf8&use_unicode=1'.format(os.environ["code"]))
-Session = scoped_session( sessionmaker(bind=engine) )
 
 app = Flask(__name__)
 
@@ -109,7 +105,7 @@ if __name__ == "__main__":
     def load_user(user_id):
         with Session() as session:
             # since the user_id is just the primary key of our user table, use it in the query for the user
-            return session.query(User).get(int(user_id))
+            return session.query(User).filter(User.id==int(user_id)).one()
 
     app.register_blueprint(auth_blueprint)
     app.run(port=8008, host="0.0.0.0")

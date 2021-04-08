@@ -1,6 +1,10 @@
-from db.db import db
-class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
-    user_id = db.Column(db.Integer)
-    message = db.Column(db.String(100))
-    timestamp = db.Column(db.DateTime())
+from sqlalchemy import Column, Integer, String, DateTime
+from db.base import Base
+
+
+class Message(Base):
+    __tablename__ = "message"
+    id = Column(Integer, primary_key=True) # primary keys are required by SQLAlchemy
+    user_id = Column(Integer)
+    message = Column(String(100))
+    timestamp = Column(DateTime())
