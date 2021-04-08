@@ -1,15 +1,15 @@
 from flask import Flask, render_template, request, jsonify, make_response, send_from_directory
-from flask_login import LoginManager, login_required
+from flask_login import LoginManager, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
 from auth import auth as auth_blueprint
 from db.user import User
+from db.message import Message
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
 
 import datetime
 import os
-import pymysql.cursors
-import pymysql
 
 from item_manager import ItemManager
 
@@ -42,33 +42,24 @@ def load():
     items = [item.to_jsonable() for item in item_manager.get_items(20)]
     return jsonify(items)
 
+@app.route('/whoami/')
+@login_required
+def whoami():
+    return jsonify({"current user": current_user.id})
 
 @app.route('/previous_messages/', methods=['POST'])
 @login_required
 def get_previous_messages_unknown_number():
     number_to_load = 5
-    try:
-        # https://stackoverflow.com/a/34503728/1320619
-        # Connect to the database
-        connection = pymysql.connect(host="141.136.33.223",
-                                     user='timepcou_site',
-                                     password=os.environ["code"],
-                                     db='timepcou_devopchallenge',
-                                     charset='utf8mb4',
-                                     cursorclass=pymysql.cursors.DictCursor)
-        with connection.cursor() as cursor:
-            # Create a new record
-            sql = "select * from store order by id desc limit %s"
-            acc = []
-            cursor.execute(sql, (number_to_load))
-            for result in cursor.fetchall():
-                acc.append(result)
-
-        # connection is not autocommit by default. So you must commit to save
-        # your changes.
-        connection.commit()
-    finally:
-        connection.close()
+    messages = (
+        db
+        .session
+        .query(Message)
+        .filter(Message.user_id == current_user.id)
+        .order_by(desc(Message.id))
+        .limit(number_to_load)
+        .all())
+    acc = [{"id": message.id, "message": message.message} for message in messages]
     return jsonify(acc)
 
 
@@ -76,28 +67,16 @@ def get_previous_messages_unknown_number():
 @login_required
 def get_previous_messages(last_id):
     number_to_load = 10
-    try:
-        # https://stackoverflow.com/a/34503728/1320619
-        # Connect to the database
-        connection = pymysql.connect(host="141.136.33.223",
-                                     user='timepcou_site',
-                                     password=os.environ["code"],
-                                     db='timepcou_devopchallenge',
-                                     charset='utf8mb4',
-                                     cursorclass=pymysql.cursors.DictCursor)
-        with connection.cursor() as cursor:
-            # Create a new record
-            sql = "select * from store where id<%s order by id desc limit %s"
-            acc = []
-            cursor.execute(sql, (last_id, number_to_load))
-            for result in cursor.fetchall():
-                acc.append(result)
-
-        # connection is not autocommit by default. So you must commit to save
-        # your changes.
-        connection.commit()
-    finally:
-        connection.close()
+    messages = (
+        db
+        .session
+        .query(Message)
+        .filter(Message.user_id == current_user.id)
+        .filter(Message.id < last_id)
+        .order_by(desc(Message.id))
+        .limit(number_to_load)
+        .all())
+    acc = [{"id": message.id, "message": message.message} for message in messages]
     return jsonify(acc)
 
 
@@ -106,30 +85,13 @@ def get_previous_messages(last_id):
 def store_message():
     message = request.json.get("message")
     now = datetime.datetime.now()
-    try:
-        # https://stackoverflow.com/a/34503728/1320619
-        # Connect to the database
-        connection = pymysql.connect(host="141.136.33.223",
-                                     user='timepcou_site',
-                                     password=os.environ["code"],
-                                     db='timepcou_devopchallenge',
-                                     charset='utf8mb4',
-                                     cursorclass=pymysql.cursors.DictCursor)
-        with connection.cursor() as cursor:
-            # Create a new record
-            sql = "INSERT INTO `store` (`message`, `timestamp`) VALUES (%s, %s)"
-            cursor.execute(sql, (message, now))
-            sql = "select * from store order by id desc limit 1"
-            cursor.execute(sql, ())
-            for result in cursor.fetchall():
-                a = jsonify(result)
-
-        # connection is not autocommit by default. So you must commit to save
-        # your changes.
-        connection.commit()
-    finally:
-        connection.close()
-    return a
+    new_message = Message(
+        user_id=current_user.id,
+        message=message,
+        timestamp=now)
+    db.session.add(new_message)
+    db.session.commit()
+    return jsonify({"message": message, "id": new_message.id})
 
 
 if __name__ == "__main__":

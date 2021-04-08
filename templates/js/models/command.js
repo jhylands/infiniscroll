@@ -15,6 +15,9 @@ class Command extends MVPModel{
   make_new_message_callback(){
     var self = this;
     return function(message_text){
+      if(message_text==="logout"){
+        window.location.replace("/logout");
+      }
       var message = new Message();
       message.message = message_text;
       //self.dom_output_handler.add_new_message(message);
