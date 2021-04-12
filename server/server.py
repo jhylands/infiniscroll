@@ -35,14 +35,16 @@ def send_js(path):
 @login_required
 def load():
     """ Route to return the posts """
-    item_manager = ItemManager()
+    item_manager = ItemManager(current_user.id)
     items = [item.to_jsonable() for item in item_manager.get_items(20)]
     return jsonify(items)
+
 
 @app.route('/whoami/')
 @login_required
 def whoami():
     return jsonify({"current user": current_user.id})
+
 
 @app.route('/previous_messages/', methods=['POST'])
 @login_required
@@ -56,7 +58,7 @@ def get_previous_messages_unknown_number():
         .order_by(desc(Message.id))
         .limit(number_to_load)
         .all())
-    acc = [{"id": message.id, "message": message.message} for message in messages]
+    acc = [message.as_dict() for message in messages]
     return jsonify(acc)
 
 
@@ -74,7 +76,7 @@ def get_previous_messages(last_id):
         .order_by(desc(Message.id))
         .limit(number_to_load)
         .all())
-    acc = [{"id": message.id, "message": message.message} for message in messages]
+    acc = [message.as_dict() for message in messages]
     return jsonify(acc)
 
 
@@ -91,7 +93,7 @@ def store_message():
         timestamp=now)
     session.add(new_message)
     session.commit()
-    return jsonify({"message": message, "id": new_message.id})
+    return jsonify(new_message.as_dict())
 
 @app.before_request
 def attachdb():

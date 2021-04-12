@@ -2,8 +2,7 @@ from neo.main import graph, Feed, User, FeedItem
 from typing import Iterable, Union, List
 
 
-def get_feeds():
-    # type: ()->Iterable[Feed]
+def get_feeds() -> Iterable[Feed]:
     return Feed.match(graph).all()
 
 
@@ -31,6 +30,18 @@ def add_user(user):
     user_model.name = user.get("name")
     user_model.email = user.get("email")
     graph.create(user_model)
+
+
+def subscribe(user: User, feed: Feed):
+    User.subscriptions.add(feed)
+
+
+def add_feed(title: str, url: str) -> Feed:
+    feed = Feed()
+    feed.title = title
+    feed.url = url
+    graph.create(feed)
+    return feed
 
 
 def add_property(parent, attribute, key=""):
@@ -84,8 +95,7 @@ match (a:FeedItem {attribute:"href"})-[:PROPERTY*..4]->(n:FeedItem)-[r:SOURCE]->
         return False
 
 
-def add_feed_item(feed_source, feed_item):
-    # type: (Feed, dict)->None
+def add_feed_item(feed_source: Feed, feed_item: dict):
     link = extract_link(feed_item)
     if link:
         results = graph.run("match (a:FeedItem {attribute:\"href\"})-[:PROPERTY*..4]->(n:FeedItem)-[r:SOURCE]->(p) where a.value=\"$value\"return a.value", value=link)

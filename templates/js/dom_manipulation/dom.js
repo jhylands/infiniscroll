@@ -77,6 +77,7 @@ class MessageHandler{
     // Query & update the template content
     template_clone.querySelector("#user").innerHTML = message.id;
     template_clone.querySelector("#content").innerHTML = message.message;
+    template_clone.querySelector("#datetime").innerHTML = message.timestamp;
     return template_clone;
   }
   get_scroller(){

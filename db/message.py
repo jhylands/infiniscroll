@@ -8,3 +8,7 @@ class Message(Base):
     user_id = Column(Integer)
     message = Column(String(100))
     timestamp = Column(DateTime())
+
+    def as_dict(self):
+        print(self.timestamp)
+        return {"message": self.message, "id": self.id, "timestamp": self.timestamp.strftime("%Y-%m-%d;%H:%M:%S")}
