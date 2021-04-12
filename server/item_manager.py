@@ -14,5 +14,13 @@ class ItemManager:
     def get_items(self, no_items):
         # type: (int)->List[Item]
 
-        items = [subscription.items for subscription, index in zip(self.user_node.subscribed_to, range(no_items))]
-        return [Item.from_feed_item(feed_item) for feed_item in items]
+        subscriptions = self.user_node.subscribed_to
+        for feed in subscriptions:
+            for item in feed.items:
+                title = item.get("title")
+                if title:
+                    the_title = title.get("innerHTML").value
+                    print("Title:", the_title)
+                    yield Item(the_title)
+                else:
+                    print("no title found for item")

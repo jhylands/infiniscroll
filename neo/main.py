@@ -38,6 +38,6 @@ class FeedItem(Model):
         graph = self.__ogm__.node.graph
         results = graph.run("""
 match (a:FeedItem {{attribute:\"{}\"}})-[:PROPERTY*..4]->(n:FeedItem)
-where ID(n)={} and a.value<>"" return a limit 1;
+where ID(n)={} return a limit 1;
 """.format(key, self.__primaryvalue__))
         return FeedItem.wrap(results.evaluate())
