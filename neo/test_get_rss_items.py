@@ -1,4 +1,4 @@
-from get_rss_items import get_user, get_items
+from neo.main import get_user, get_items
 
 def test_get_user():
     assert get_user(1).name == "James"
