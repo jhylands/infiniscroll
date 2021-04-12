@@ -10,7 +10,8 @@ class FeedHandler{
     let template_clone = this.get_template().content.cloneNode(true);
     // Query & update the template content
     template_clone.querySelector("#title").innerHTML = feed_item.title;
-    template_clone.querySelector("#content").innerHTML = feed_item.content;
+    template_clone.querySelector("#link").href = feed_item.link;
+    template_clone.querySelector("#content").innerHTML = feed_item.description;
     return template_clone;
   }
 

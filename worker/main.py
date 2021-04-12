@@ -1,5 +1,5 @@
 from worker.tasks import load_feed
-from neo.main import get_feeds, add_feed_item
+from neo.functions import get_feeds, add_feed_item
 from time import sleep
 
 

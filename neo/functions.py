@@ -72,7 +72,7 @@ def add_property(parent, attribute, key=""):
             for item in add_property(item_property, sub_attribute, key):
                 yield item
     else:
-        raise Exception(type(attribute))
+        add_property(parent, str(attribute), key)
 
 
 def extract_link(feed_item: Union[dict, List]) -> str:

@@ -11,7 +11,9 @@ class FeedItem{
     var title = a.title;
     var content = a.content;
     var position = a.position;
-    return new FeedItem(title, content, position);
+    var item = new FeedItem(title, content, position); 
+    item.link = a.link;
+    return item;
   }
 }
 

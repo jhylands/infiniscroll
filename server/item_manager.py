@@ -17,10 +17,7 @@ class ItemManager:
         subscriptions = self.user_node.subscribed_to
         for feed in subscriptions:
             for item in feed.items:
-                title = item.get("title")
-                if title:
-                    the_title = title.get("innerHTML").value
-                    print("Title:", the_title)
-                    yield Item(the_title)
-                else:
-                    print("no title found for item")
+                try:
+                    yield Item.from_feed_item(item)
+                except Exception as e:
+                    print(e)

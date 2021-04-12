@@ -34,7 +34,7 @@ input{
     display:block;
     overflow:auto;
 }
-.card-body{
+.message-body{
     /*text-align:right;*/
     float:right;
     background-color:aqua;
@@ -56,6 +56,13 @@ h4{
     text-align:right;
 }
 
+.card-body{
+    margin-top:10px;
+    background-color:#ffd2d2;
+}
+img{
+    float:left;
+}
 </style>
 
 </head>
@@ -82,7 +89,7 @@ h4{
 
               <!-- template content -->
               <div class="card mb-3 animated fadeIn shadow-sm">
-                <div class="card-body">
+                <div class="message-body">
                   <span class="text-muted" id="content"></span>
                   <p id="datetime" class="datetime"></p>
                 </div>
@@ -124,7 +131,7 @@ h4{
               <!-- template content -->
               <div class="card mb-3 animated fadeIn shadow-sm">
                 <div class="card-body">
-                  <h4 class="card-title" id="title"></h4>
+                  <a id="link"><h4 class="card-title" id="title"></h4></a>
                   <span class="text-muted" id="content"></span>
                 </div>
               </div>
