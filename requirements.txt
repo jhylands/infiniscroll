@@ -1,0 +1,5 @@
+flask
+flask_login
+sqlalchemy
+mysqlclient # sudo apt-get install libmysqlclient-dev
+py2neo
