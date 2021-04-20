@@ -24,7 +24,7 @@ class Command extends MVPModel{
       self.communication_handler.submit_new_message(message)
         .then(function(response){
           if(response!=={}){
-            self.dom_output_handler.add_new_message(response);
+            response.forEach(function(r){self.dom_output_handler.add_new_message(r);});
           }
         });
     };

@@ -34,10 +34,15 @@ input{
     display:block;
     overflow:auto;
 }
-.message-body{
-    /*text-align:right;*/
+.user-body{
     float:right;
     background-color:aqua;
+}
+.server-body{
+    float:left;
+    background-color:#ff6969;
+}
+.message-body{
     border-radius:10px;
     max-width:45%;
     padding-left:20px;
@@ -89,7 +94,7 @@ img{
 
               <!-- template content -->
               <div class="card mb-3 animated fadeIn shadow-sm">
-                <div class="message-body">
+                <div id="content-wrap" class="message-body">
                   <span class="text-muted" id="content"></span>
                   <p id="datetime" class="datetime"></p>
                 </div>

@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_required, current_user
 from sqlalchemy import desc
 from auth import auth as auth_blueprint
 from db.user import User
-from db.message import Message
+from db.message import Message, MessageStatus
 from db.db import Session
 
 import datetime
@@ -80,20 +80,46 @@ def get_previous_messages(last_id):
     return jsonify(acc)
 
 
+class NewMessageHandler:
+    # in message
+    def __init__(self, message):
+        self.message = message
+
+    @staticmethod
+    def message_handler(message):
+        if message.startswith("/"):
+            return "search"
+
+    def do(self, session):
+        new_message = self.store_message(session, self.message)
+        response = self.message_handler(self.message)
+        if response:
+            new_response = self.store_message(session, response, MessageStatus.SERVER)
+            return [new_message.as_dict(), new_response.as_dict()]
+        else:
+            return [new_message.as_dict()]
+        
+
+    @staticmethod
+    def store_message(session: Session, message: str, status: MessageStatus =MessageStatus.USER)->Message:
+        now = datetime.datetime.now()
+        new_message = Message(
+            user_id=current_user.id,
+            message=message,
+            status=status,
+            timestamp=now)
+        session.add(new_message)
+        session.commit()
+        return new_message
+
+
 @app.route('/store_message', methods=['POST'])
 @login_required
 def store_message():
     # init SQLAlchemy so we can use it later in our models
     session = g.session
     message = request.json.get("message")
-    now = datetime.datetime.now()
-    new_message = Message(
-        user_id=current_user.id,
-        message=message,
-        timestamp=now)
-    session.add(new_message)
-    session.commit()
-    return jsonify(new_message.as_dict())
+    return jsonify(NewMessageHandler(message).do(session))
 
 @app.before_request
 def attachdb():

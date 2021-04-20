@@ -78,6 +78,13 @@ class MessageHandler{
     // Query & update the template content
     //template_clone.querySelector("#user").innerHTML = message.id;
     template_clone.querySelector("#content").innerHTML = message.message;
+
+    if (message.status==0){
+      template_clone.querySelector("#content-wrap").classList.add("user-body");
+    }else{
+      template_clone.querySelector("#content-wrap").classList.add("server-body");
+    }
+
     template_clone.querySelector("#datetime").innerHTML = message.timestamp;
     return template_clone;
   }
