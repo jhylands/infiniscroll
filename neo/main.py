@@ -3,7 +3,8 @@
 
 from py2neo import Graph
 from py2neo.ogm import Model, Property, RelatedTo, RelatedFrom
-graph = Graph(password="test")
+import os
+graph = Graph(host="bolt.timep.co.uk",  password=os.environ["neocode"])
 
 
 class Feed(Model):

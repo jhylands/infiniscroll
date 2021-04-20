@@ -25,7 +25,10 @@ COPY scraper /home/app/scraper
 COPY webpack.config.js /home/app/
 
 RUN cd /home/app/;npx webpack
-ENV code=thebestpasswordintheworld
+ARG code
+ARG neocode
+ENV code=$code
+ENV neocode=$neocode
 ENV PYTHONPATH=/home/app
 ENTRYPOINT ["python3", "/home/app/server/server.py"]
 
