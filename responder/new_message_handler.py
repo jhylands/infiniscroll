@@ -1,5 +1,5 @@
 from db.message import Message, MessageStatus
-from responder.message_handler_factory import MessageHandlerFactory
+from responder.message_handler_factory import MessageHandlerFactory, create_handler
 import datetime
 
 
@@ -18,8 +18,8 @@ class NewMessageHandler:
         self._session = session
         return self
 
-    def message_handler(self, message):
-        return MessageHandlerFactory.create_handler(message)(self)
+    def message_handler(self):
+        return create_handler(MessageHandlerFactory, self._message)(self)
 
     def send(self):
         new_message = self.store_message(self._message, MessageStatus.USER)

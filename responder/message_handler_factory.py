@@ -2,7 +2,7 @@
 
 import logging
 import re
-from typing import Callable, Dict
+from typing import Callable, Dict, Type
 from responder.message_handler_base import (
     MessageHandlerBase,
     LiteralResponder,
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 class MessageHandlerFactory:
     """ The factory class for creating executors"""
 
-    literal: Dict[str, LiteralResponder] = {}
+    literal: Dict[str, Type[LiteralResponder]] = {}
     regex: Dict[str, RegexResponder] = {}
     regex_pos: Dict[str, RegexPOSResponder] = {}
     nlp_tree: Dict[str, NLPTreeResponder] = {}
@@ -34,57 +34,40 @@ class MessageHandlerFactory:
     """ Internal registry for available executors """
 
     @classmethod
-    def register(cls, name: str) -> Callable:
+    def register(cls) -> Callable:
         """Class method to register Executor class to the internal registry."""
 
         def inner_wrapper(wrapped_class: MessageHandlerBase) -> MessageHandlerBase:
-            if isinstance(wrapped_class, LiteralResponder):
-                if name in cls.literal:
+            if LiteralResponder in wrapped_class.__mro__:
+                if wrapped_class.get_name() in cls.literal:
                     logger.warning("Executor %s already exists. Will replace it", name)
-                cls.literal[name] = wrapped_class
+                cls.literal[wrapped_class.get_name()] = wrapped_class
             elif isinstance(wrapped_class, RegexResponder):
-                if name in cls.regex:
-                    logger.warning("Executor %s already exists. Will replace it", name)
-                cls.regex[name] = wrapped_class
+                if wrapped_class.get_name() in cls.regex:
+                    logger.warning(
+                        "Executor %s already exists. Will replace it",
+                        wrapped_class.get_name(),
+                    )
+                cls.regex[wrapped_class.get_name()] = wrapped_class
             elif isinstance(wrapped_class, RegexPOSResponder):
-                if name in cls.regex_pos:
-                    logger.warning("Executor %s already exists. Will replace it", name)
-                cls.regex_pos[name] = wrapped_class
+                if wrapped_class.get_name() in cls.regex_pos:
+                    logger.warning(
+                        "Executor %s already exists. Will replace it",
+                        wrapped_class.get_name(),
+                    )
+                cls.regex_pos[wrapped_class.get_name()] = wrapped_class
             elif isinstance(wrapped_class, NLPTreeResponder):
-                if name in cls.nlp_tree:
-                    logger.warning("Executor %s already exists. Will replace it", name)
-                cls.nlp_tree[name] = wrapped_class
+                if wrapped_class.get_name() in cls.nlp_tree:
+                    logger.warning(
+                        "Executor %s already exists. Will replace it",
+                        wrapped_class.get_name(),
+                    )
+                cls.nlp_tree[wrapped_class.get_name()] = wrapped_class
             return wrapped_class
 
         return inner_wrapper
 
     @classmethod
-    def create_handler(factory, message: str) -> MessageHandlerBase:
-        """Factory command to create the executor.
-
-        This method gets the appropriate Executor class from the registry
-        and creates an instance of it, while passing in the parameters
-        given in ``kwargs``.
-        Args:
-            name (str): The name of the executor to create.
-        Returns:
-            An instance of the executor that is created.
-        """
-        literal = factory.match_literal(message)
-        if literal:
-            return literal
-        regex = factory.match_regex(message)
-        if regex:
-            return regex
-        regexPOS = factory.match_regexPOS(message)
-        if regexPOS:
-            return regexPOS
-        NLPTree = factory.match_NLPTree(message)
-        if NLPTree:
-            return NLPTree
-
-        return NonMatchingResponder
-
     def match_literal(self, message):
         if message in self.literal:
             return self.literal[message]
@@ -100,3 +83,34 @@ class MessageHandlerFactory:
 
     def match_NLPTree(self, message):
         pass
+
+
+def create_handler(
+    factory: MessageHandlerFactory, message: str
+) -> Type[MessageHandlerBase]:
+    """Factory command to create the executor.
+
+    This method gets the appropriate Executor class from the registry
+    and creates an instance of it, while passing in the parameters
+    given in ``kwargs``.
+    Args:
+        name (str): The name of the executor to create.
+    Returns:
+        An instance of the executor that is created.
+    """
+    print("entered create_handler")
+    literal = factory.match_literal(message)
+    if literal:
+        return literal
+    print(factory.literal)
+    regex = factory.match_regex(message)
+    if regex:
+        return regex
+    regexPOS = factory.match_regexPOS(message)
+    if regexPOS:
+        return regexPOS
+    NLPTree = factory.match_NLPTree(message)
+    if NLPTree:
+        return NLPTree
+
+    return NonMatchingResponder
