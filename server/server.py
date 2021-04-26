@@ -3,7 +3,8 @@ from flask_login import LoginManager, login_required, current_user
 from auth import auth as auth_blueprint
 from db.user import User
 from db.db import Session
-from responder.main import NewMessageHandler, MessageLoader
+from responder.new_message_handler import NewMessageHandler
+from responder.message_loader import MessageLoader
 from item_manager import ItemManager
 
 app = Flask(__name__)
@@ -66,7 +67,7 @@ def store_message():
     session = g.session
     message = request.json.get("message")
     return jsonify(
-        NewMessageHandler(message).user_id(current_user.id).session(session).send()
+        NewMessageHandler(message).user_id(current_user.id).session(session).message_handler().run()
     )
 
 

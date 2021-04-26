@@ -1,11 +1,14 @@
+from db.message import Message, MessageStatus
 from abc import ABCMeta, abstractmethod
+from typing import List
 
 
 class MessageHandlerBase(metaclass=ABCMeta):
     """ Base class for an executor """
 
-    def __init__(self, handler: "NewMessageHandler", **kwargs):
+    def __init__(self, command: str, handler: "NewMessageHandler"):
         """ Constructor """
+        self.command = command
         self.handler = handler
 
     @staticmethod
@@ -13,8 +16,8 @@ class MessageHandlerBase(metaclass=ABCMeta):
     def get_name():
         pass
 
-    # @abstractmethod
-    def run(self, command: str) -> str:
+    @abstractmethod
+    def run(self) -> List[dict]:
         """ Abstract method to run a command """
         pass
 
@@ -39,3 +42,8 @@ class NonMatchingResponder(MessageHandlerBase):
     @staticmethod
     def get_name():
         return "NonMatchingResponder"
+
+    def run(self) -> List[dict]:
+        command = self.command
+        handler = self.handler
+        return [handler.store_message(command, MessageStatus.USER).as_dict()]

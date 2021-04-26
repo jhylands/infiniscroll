@@ -42,21 +42,21 @@ class MessageHandlerFactory:
                 if wrapped_class.get_name() in cls.literal:
                     logger.warning("Executor %s already exists. Will replace it", name)
                 cls.literal[wrapped_class.get_name()] = wrapped_class
-            elif isinstance(wrapped_class, RegexResponder):
+            elif RegexResponder in wrapped_class.__mro__:
                 if wrapped_class.get_name() in cls.regex:
                     logger.warning(
                         "Executor %s already exists. Will replace it",
                         wrapped_class.get_name(),
                     )
                 cls.regex[wrapped_class.get_name()] = wrapped_class
-            elif isinstance(wrapped_class, RegexPOSResponder):
+            elif RegexPOSResponder in wrapped_class.__mro__:
                 if wrapped_class.get_name() in cls.regex_pos:
                     logger.warning(
                         "Executor %s already exists. Will replace it",
                         wrapped_class.get_name(),
                     )
                 cls.regex_pos[wrapped_class.get_name()] = wrapped_class
-            elif isinstance(wrapped_class, NLPTreeResponder):
+            elif NLPTreeResponder in wrapped_class.__mro__:
                 if wrapped_class.get_name() in cls.nlp_tree:
                     logger.warning(
                         "Executor %s already exists. Will replace it",
@@ -72,22 +72,25 @@ class MessageHandlerFactory:
         if message in self.literal:
             return self.literal[message]
 
+    @classmethod
     def match_regex(self, message):
         for regex in self.regex:
             match = re.match(regex, message)
             if match:
                 return self.regex[regex]
 
+    @classmethod
     def match_regexPOS(self, message):
         pass
 
+    @classmethod
     def match_NLPTree(self, message):
         pass
 
 
 def create_handler(
     factory: MessageHandlerFactory, message: str
-) -> Type[MessageHandlerBase]:
+) -> MessageHandlerBase:
     """Factory command to create the executor.
 
     This method gets the appropriate Executor class from the registry
@@ -98,11 +101,9 @@ def create_handler(
     Returns:
         An instance of the executor that is created.
     """
-    print("entered create_handler")
     literal = factory.match_literal(message)
     if literal:
         return literal
-    print(factory.literal)
     regex = factory.match_regex(message)
     if regex:
         return regex

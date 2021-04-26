@@ -1,5 +1,9 @@
 from db.message import Message, MessageStatus
 from responder.message_handler_factory import MessageHandlerFactory, create_handler
+import responder.literal  # noqa: F401
+import responder.regex  # noqa: F401
+import responder.regex_pos  # noqa: F401
+import responder.nlp_tree  # noqa: F401
 import datetime
 
 
@@ -19,16 +23,7 @@ class NewMessageHandler:
         return self
 
     def message_handler(self):
-        return create_handler(MessageHandlerFactory, self._message)(self)
-
-    def send(self):
-        new_message = self.store_message(self._message, MessageStatus.USER)
-        response = self.message_handler(self._message)
-        if response:
-            new_response = self.store_message(response, MessageStatus.SERVER)
-            return [new_message.as_dict(), new_response.as_dict()]
-        else:
-            return [new_message.as_dict()]
+        return create_handler(MessageHandlerFactory, self._message)(self._message, self)
 
     def store_message(self, message: str, status: MessageStatus) -> Message:
         now = datetime.datetime.now()
