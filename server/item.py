@@ -5,20 +5,21 @@ from typing import List, Optional
 
 
 class Item:
-
     @staticmethod
     def from_feed_item(item: FeedItem):
         data = item.get_properties(["title", "summary", "link"])
-        title = data["title"]
-        description = data["summary"]
-        link = data["link"]
-        thumbnail = None #Item.get_property(item, ["media_thumbnail", "url"])
+        title = data.get("title")
+        description = data.get("summary")
+        link = data.get("link")
+        thumbnail = None  # Item.get_property(item, ["media_thumbnail", "url"])
         item = Item(title)
         item.link = link
         if thumbnail:
             item.content += '<img src="{}" />'.format(thumbnail)
         if description:
             item.content += "<p>{}</p>".format(description[:1000])
+        else:
+            print("Couldn't find description")
         return item
 
     def __init__(self, title):

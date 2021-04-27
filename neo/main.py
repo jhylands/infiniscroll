@@ -55,17 +55,26 @@ where ID(n)={} return a limit 1;
             "match (a:FeedItem )-[:PROPERTY*..4]->(self)-[:SOURCE]->(feed:Feed)"
         )
         # WHERE
-        id_clause = "id(feed)=$feed_id and id(self)=$self_id"
+        print("Primary value", self.__primaryvalue__)
+        id_clause = "id(feed)={} and id(self)={}".format(
+            self.source._related_objects[0][0].__primaryvalue__, self.__primaryvalue__
+        )
         property_table = [("$a_{}".format(i), a) for i, a in enumerate(properties)]
         properties_clause = " or ".join(
-            ['a.attribute="{}"'.format(title) for title, attribute in property_table]
+            [
+                'a.attribute="{}"'.format(attribute)
+                for title, attribute in property_table
+            ]
         )
         return_clause = "a"
         query = f"{match_clause} where {id_clause} and  ({properties_clause}) return {return_clause}"
         print(query)
+        print(
+            "source: ",
+        )
         key_dict = {
             **dict(property_table),
-            **{"self_id": self.__primarykey__, "feed_id": "2"},
+            **{"self_id": self.__primaryvalue__, "feed_id": "2"},
         }
-        data = graph.run(query, **key_dict).data()
+        data = graph.run(query).data()
         return dict([(v["a"]["attribute"], v["a"]["value"]) for v in data])
