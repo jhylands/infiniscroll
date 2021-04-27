@@ -5,25 +5,20 @@ from typing import List, Optional
 
 
 class Item:
-    @staticmethod
-    def get_property(item: FeedItem, property_list: List[str]) -> Optional[str]:
-        inter_item = item
-        for p in property_list:
-            inter_item = inter_item.get(p)
-            if inter_item is None:
-                return None
-        return inter_item.value
 
     @staticmethod
     def from_feed_item(item: FeedItem):
-        title = Item.get_property(item, ["title"])
-        description = Item.get_property(item, ["summary"])
-        link = Item.get_property(item, ["link"])
-        thumbnail = Item.get_property(item, ["media_thumbnail", "url"])
+        data = item.get_properties(["title", "summary", "link"])
+        title = data["title"]
+        description = data["summary"]
+        link = data["link"]
+        thumbnail = None #Item.get_property(item, ["media_thumbnail", "url"])
         item = Item(title)
         item.link = link
+        if thumbnail:
+            item.content += '<img src="{}" />'.format(thumbnail)
         if description:
-            item.content = '<img src="{}" /><p>{}</p>'.format(thumbnail, description[:1000])
+            item.content += "<p>{}</p>".format(description[:1000])
         return item
 
     def __init__(self, title):
