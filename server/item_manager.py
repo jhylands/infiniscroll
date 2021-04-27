@@ -1,6 +1,7 @@
 from item import Item
-from typing import List
+from typing import List, Generator
 from neo.functions import get_user
+from neo.main import Feed, FeedItem
 
 
 class ItemManager:
@@ -12,12 +13,14 @@ class ItemManager:
         pass
 
     def get_items(self, no_items):
-        # type: (int)->List[Item]
+        # type: (int)->Generator[Item]
 
-        subscriptions = self.user_node.subscribed_to
-        for feed in subscriptions:
-            for item in feed.items:
-                try:
-                    yield Item.from_feed_item(item)
-                except Exception as e:
-                    print(e)
+        subscriptions: List[Feed] = self.user_node.subscribed_to
+        acc = 0
+        items = (item for feed in subscriptions for item in feed.items)
+        for item in items:
+            acc += 1
+            print(item)
+            yield Item.from_feed_item(item)
+            if acc >= no_items:
+                break

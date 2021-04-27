@@ -1,4 +1,5 @@
 from db.message import Message, MessageStatus
+from db.user import User
 from responder.message_handler_factory import MessageHandlerFactory, create_handler
 import responder.literal  # noqa: F401
 import responder.regex  # noqa: F401
@@ -21,6 +22,11 @@ class NewMessageHandler:
     def session(self, session):
         self._session = session
         return self
+
+    def get_user(self):
+        if self._session:
+            return self._session.query(User).filter(User.id == self._user_id).one()
+        raise Exception("No session attached, can't query for user object")
 
     def message_handler(self):
         return create_handler(MessageHandlerFactory, self._message)(self._message, self)

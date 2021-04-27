@@ -9,3 +9,6 @@ class User(UserMixin, Base):
     email = Column(String(100), unique=True)
     password = Column(String(100))
     name = Column(String(1000))
+
+    def as_dict(self):
+        return {"id": self.id, "email": self.email, "name": self.name}

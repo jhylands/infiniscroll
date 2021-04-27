@@ -1,5 +1,7 @@
+from py2neo import Relationship
 from neo.main import graph, Feed, User, FeedItem
-from typing import Iterable, Union, List
+from typing import Optional, Iterable, Union, List
+import datetime
 
 
 def get_feeds() -> Iterable[Feed]:
@@ -21,22 +23,33 @@ def get_user(user_id):
     return User.match(graph).where(id=user_id).first()
 
 
-def add_user(user):
-    # type: (dict)->None
+def add_user(user: dict) -> User:
     # need to add assurance that the user doesn't
     # already exist
+    user_id = user.get("id")  # type: int
+    if user := get_user(user_id):
+        return user
     user_model = User()
-    user_model.id = user.get("id")
+    user_model.id = user_id
     user_model.name = user.get("name")
     user_model.email = user.get("email")
     graph.create(user_model)
+    return user_model
 
 
 def subscribe(user: User, feed: Feed):
-    User.subscriptions.add(feed)
+    now = datetime.datetime.now()
+    graph.create(Relationship(user.__node__, "SUBSCRIBED", feed.__node__, when=now))
+
+
+def get_feed_from_url(url: str) -> Optional[Feed]:
+    return Feed.match(graph).where("_.url='{}'".format(url)).first()
 
 
 def add_feed(title: str, url: str) -> Feed:
+    # Needs a gaurd against duplication
+    if feed := get_feed_from_url(url):
+        return feed
     feed = Feed()
     feed.title = title
     feed.url = url
@@ -77,10 +90,10 @@ def add_property(parent, attribute, key=""):
 
 def extract_link(feed_item: Union[dict, List]) -> str:
     """
-    So the idea here is that we do a search guided by
-    the presence of keys like "link"
-match (a:FeedItem {attribute:"href"})-[:PROPERTY]-> (l:FeedItem {attribute:"link"})-[r2:PROPERTY]->(:FeedItem)-[r1:PROPERTY]->(n:FeedItem)-[r:SOURCE]->(p) return a.value 
-match (a:FeedItem {attribute:"href"})-[:PROPERTY*..4]->(n:FeedItem)-[r:SOURCE]->(p) return a.value 
+        So the idea here is that we do a search guided by
+        the presence of keys like "link"
+    match (a:FeedItem {attribute:"href"})-[:PROPERTY]-> (l:FeedItem {attribute:"link"})-[r2:PROPERTY]->(:FeedItem)-[r1:PROPERTY]->(n:FeedItem)-[r:SOURCE]->(p) return a.value
+    match (a:FeedItem {attribute:"href"})-[:PROPERTY*..4]->(n:FeedItem)-[r:SOURCE]->(p) return a.value
     """
     if isinstance(feed_item, list):
         [extract_link(item) for item in feed_item]
@@ -98,7 +111,10 @@ match (a:FeedItem {attribute:"href"})-[:PROPERTY*..4]->(n:FeedItem)-[r:SOURCE]->
 def add_feed_item(feed_source: Feed, feed_item: dict):
     link = extract_link(feed_item)
     if link:
-        results = graph.run("match (a:FeedItem {attribute:\"href\"})-[:PROPERTY*..4]->(n:FeedItem)-[r:SOURCE]->(p) where a.value=\"$value\"return a.value", value=link)
+        results = graph.run(
+            'match (a:FeedItem {attribute:"href"})-[:PROPERTY*..4]->(n:FeedItem)-[r:SOURCE]->(p) where a.value="$value"return a.value',
+            value=link,
+        )
         if results:
             print("values already found in the database, skipping")
             return

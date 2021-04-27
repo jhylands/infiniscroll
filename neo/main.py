@@ -4,7 +4,8 @@
 from py2neo import Graph
 from py2neo.ogm import Model, Property, RelatedTo, RelatedFrom
 import os
-graph = Graph(host="bolt.timep.co.uk",  password=os.environ["neocode"])
+
+graph = Graph(host="bolt.timep.co.uk", password=os.environ["neocode"])
 
 
 class Feed(Model):
@@ -37,8 +38,12 @@ class FeedItem(Model):
 
     def get(self, key):
         graph = self.__ogm__.node.graph
-        results = graph.run("""
+        results = graph.run(
+            """
 match (a:FeedItem {{attribute:\"{}\"}})-[:PROPERTY*..4]->(n:FeedItem)
 where ID(n)={} return a limit 1;
-""".format(key, self.__primaryvalue__))
+""".format(
+                key, self.__primaryvalue__
+            )
+        )
         return FeedItem.wrap(results.evaluate())
