@@ -119,7 +119,13 @@ def add_feed_item(feed_source: Feed, feed_item: dict):
             print("values already found in the database, skipping")
             return
     feed_item_model = FeedItem()
-    feed_item_model.source.add(feed_source)
+    # here we want to add to the relationship
+    # feed_item_model.source.add(feed_source)
+    now = datetime.datetime.now()
+    graph.create(
+        Relationship(feed_item_model.__node__, "SOURCE", feed_source.__node__, when=now)
+    )
     graph.create(feed_item_model)
     for property_ in add_property(feed_item_model, feed_item):
         graph.create(property_)
+
