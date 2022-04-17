@@ -2,6 +2,7 @@
 
 import logging
 import re
+import posre
 from typing import Callable, Dict, Type
 from responder.message_handler_base import (
     MessageHandlerBase,
@@ -81,7 +82,10 @@ class MessageHandlerFactory:
 
     @classmethod
     def match_regexPOS(self, message):
-        pass
+        for posgex in self.regex_pos:
+            match = posre.match(posgex, message)
+            if match:
+                return self.regex_pos[posgex]
 
     @classmethod
     def match_NLPTree(self, message):
