@@ -2,7 +2,7 @@ from db.message import Message, MessageStatus
 import feedparser
 from responder.message_handler_base import RegexResponder
 from responder.message_handler_factory import MessageHandlerFactory
-from neo.functions import get_user, add_user, subscribe, add_feed
+#from neo.functions import get_user, add_user, subscribe, add_feed
 import re
 
 

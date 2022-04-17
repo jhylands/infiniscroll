@@ -5,7 +5,7 @@ from db.user import User
 from db.db import Session
 from responder.new_message_handler import NewMessageHandler
 from responder.message_loader import MessageLoader
-from item_manager import ItemManager
+from server.item_manager import ItemManager
 
 app = Flask(__name__)
 
@@ -92,6 +92,7 @@ def closedb(request):
 if __name__ == "__main__":
     app.config["SECRET_KEY"] = "9OLWxND4o83j4K4iuopO"
 
+    print("log1")
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
     login_manager.init_app(app)
