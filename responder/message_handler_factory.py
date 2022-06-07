@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 class MessageHandlerFactory:
     """ The factory class for creating executors"""
 
-    literal: Dict[str, Type[LiteralResponder]] = {}
+    literal: Dict[str, LiteralResponder] = {}
     regex: Dict[str, RegexResponder] = {}
     regex_pos: Dict[str, RegexPOSResponder] = {}
     nlp_tree: Dict[str, NLPTreeResponder] = {}
@@ -76,14 +76,16 @@ class MessageHandlerFactory:
     @classmethod
     def match_regex(self, message):
         for regex in self.regex:
-            match = re.match(regex, message)
+            # The returned items should be compiled regex for speed
+            match = regex.match(message)
             if match:
                 return self.regex[regex]
 
     @classmethod
     def match_regexPOS(self, message):
         for posgex in self.regex_pos:
-            match = posre.match(posgex, message)
+            # The returned items should be compiled regex for speed
+            match = posgex.match(message)
             if match:
                 return self.regex_pos[posgex]
 
@@ -118,4 +120,15 @@ def create_handler(
     if NLPTree:
         return NLPTree
 
+    return NonMatchingResponder
+
+def find_handle(factory: MessageHandlerFactory, name: str)-> MessageHandlerBase:
+    if name in factory.literal:
+        return factory.literal[name]
+    if name in factory.regex:
+        return factory.regex[name]
+    if name in factory.regex_pos:
+        return factory.regex_pos[name]
+    if name in factory.nlp_tree:
+        return factory.nlp_tree[name]
     return NonMatchingResponder

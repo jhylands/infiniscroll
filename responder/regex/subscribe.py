@@ -20,7 +20,7 @@ class Subscribe(RegexResponder):
         path = r"(?:(?:\.|\/|\w)+)"
         query = r"(?:\?\w+=\w+)"
         fragment = r"(?:#\w+)"
-        return f"(?i){subscribe}\s+({protocol}://{domain}{port}?{path}?{query}?{fragment}?)"
+        return re.compile(f"(?i){subscribe}\s+({protocol}://{domain}{port}?{path}?{query}?{fragment}?)")
 
     def run(self):
         handler = self.handler

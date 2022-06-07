@@ -1,14 +1,14 @@
-from responder.message_handler_factory import MessageHandlerBase
+from responder.new_message_handler import NewMessageHandler
+
+def of_user(message):
+    pass
+def has_data(message):
+    pass
 
 
-@MessageHandlerFactory.register("hello")
-class Greeting(MessageHandlerBase):
-    def __init__(self):
-        super().__init__("Hello")
-
-    def match():
-        pass
-
-    def run(self, command: str) -> (str, str):
-        """ Runs the given command using subprocess """
-        pass
+def handle_message(message, user_id, session):
+    # So currently the message is just a string so there is no way to answer these questions
+    if not of_user(last_message) and has_data(last_message):
+        MessageFactory(data(last_message)["type"])(data)
+    else:
+        NewMessageHandler(message).user_id(current_user.id).session(session).message_handler().run()

@@ -28,6 +28,11 @@ def match(posgex, string):
     regex = posgex_to_regex(posgex)
     return re.match(regex, string)
 
+def compile(posgex):
+    regex = posgex_to_regex(posgex)
+    return re.compile(regex)
+    
+
 
 def posgex_to_regex(query_string):
     # What we want to do here is match every [POS] to a group containing all the possible words
